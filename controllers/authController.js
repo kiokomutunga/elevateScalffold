@@ -1,51 +1,32 @@
-import { OAuth2Client } from "google-auth-library";
 import User from "../models/user.js";
-import jwt from "jsonwebtoken";
+import otp from "../models/Otp.js";
+import bcrypt from "bcryptjs";
 
-const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+const generateotp = () =>
+  Math.floor(100000 + Math.random() * 900000).toString();
 
-export const createOrLoginUser = async (req, res) => {
-  try {
-    const { token, accessCode } = req.body;
+//scale a number with six digit 
 
-    
-    if (accessCode !== process.env.SECRET_ACCESS_CODE) {
-      return res.status(403).json({ message: "Invalid access code" });
-    }
+//signing for the first time 
 
-    
-    const ticket = await client.verifyIdToken({
-      idToken: token,
-      audience: process.env.GOOGLE_CLIENT_ID
-    });
+export const signup = () => {
+  try{
 
-    const { email, name, sub } = ticket.getPayload();
+    const {name , email, password, adminCode } = req.body;
+    //destract to variables to work o them
 
-    
-    let user = await User.findOne({ email });
-
-    
-    if (!user) {
-      user = await User.create({
-        name,
-        email,
-        googleId: sub
+    if (adminCode !== process.env.ADMIN_ACCESS_CODE) {
+      return res.status(403).json({
+        message: "Ivalid Admin code Access Denied"
       });
     }
 
-   
-    const authToken = jwt.sign(
-      { id: user._id, email: user.email },
-      process.env.JWT_SECRET,
-      { expiresIn: "7d" }
-    );
+    const existingUser = await User.findOne({email});
+    if(existingUser) {
+      return res.status(400).json({
+        message: "User already exists please loggin to continue"
+      });
+    }
 
-    res.json({
-      message: "Login successful",
-      token: authToken,
-      user
-    });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
   }
-};
+}
