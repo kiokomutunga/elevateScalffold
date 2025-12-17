@@ -9,7 +9,7 @@ const generateotp = () =>
 
 //signing for the first time 
 
-export const signup = () => {
+export const signup = (req,res) => {
   try{
 
     const {name , email, password, adminCode } = req.body;
@@ -28,5 +28,42 @@ export const signup = () => {
       });
     }
 
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    await User.create(
+      {
+        name,
+        email,
+        password: hashedPassword,
+        authProvider: "local",
+        isVerified: false
+      }
+    );
+
+    await otp.deleteMany ({email, purpose: "verify"});
+
+    const otpcode = generateOtp();
+
+    await otp.create({
+      email,
+      code: otpcode,
+      purpose: "verify",
+      expiresAt: new Date(Date.now() + 10* 60 * 1000)
+
+    });
+
+    //send email via email
+
+    return res.status(201).json ({
+      message: "Account created . Verify email sent to your emial"
+    });
+
+
   }
-}
+  catch(error){
+    console.error(error);
+    res.status(500).json({
+      message: "Account creation Failed"
+    })
+  }
+};
