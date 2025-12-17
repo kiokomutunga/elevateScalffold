@@ -1,9 +1,54 @@
-import mongoose from  "mongoose";
+import mongoose from "mongoose";
 
-const userSchema = new mongoose.Schema({
-    name: String,
-    email: {type: String, unique: true},
-    googleId: String,
-}, {timestamps: true});
+const userSchema = new mongoose.Schema(
+  {
+    name: {
+      type: String,
+      required: true,
+      trim: true
+    },
+
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+      lowercase: true,
+      index: true
+    },
+
+    password: {
+      type: String,
+      default: null   
+    },
+
+    googleId: {
+      type: String,
+      default: null
+    },
+
+    authProvider: {
+      type: String,
+      enum: ["local", "google"],
+      default: "local"
+    },
+
+    isVerified: {
+      type: Boolean,
+      default: false
+    },
+
+    role: {
+      type: String,
+      enum: ["user", "admin"],
+      default: "admin"
+    },
+
+    lastLogin: {
+      type: Date
+    }
+  },
+  { timestamps: true }
+);
 
 export default mongoose.model("User", userSchema);
+
