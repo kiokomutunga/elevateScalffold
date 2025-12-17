@@ -1,32 +1,21 @@
 import User from "../models/user.js";
 import otp from "../models/Otp.js";
 import bcrypt from "bcryptjs";
+const jwt = require("jsonwebtoken");
 
-const generateotp = () =>
-  Math.floor(100000 + Math.random() * 900000).toString();
+const generateAndSendOtp = async () => {
+    const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
 
-//scale a number with six digit 
+    await Otp.findOneAndUpdate(
+        {email},
+        {code:otpCode, expiresAt: Date.now() + 10*60*1000},
+        {upsert: true}
+    );
 
-//signing for the first time 
+    return otpCode;
+};
 
-export const signup = () => {
-  try{
+//generate the otp and assign the time until it expires
 
-    const {name , email, password, adminCode } = req.body;
-    //destract to variables to work o them
+//new user registering
 
-    if (adminCode !== process.env.ADMIN_ACCESS_CODE) {
-      return res.status(403).json({
-        message: "Ivalid Admin code Access Denied"
-      });
-    }
-
-    const existingUser = await User.findOne({email});
-    if(existingUser) {
-      return res.status(400).json({
-        message: "User already exists please loggin to continue"
-      });
-    }
-
-  }
-}
