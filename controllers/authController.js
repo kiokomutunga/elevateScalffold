@@ -78,4 +78,29 @@ exports.registerAdmin = async(req, res)=>{
 
 };
 
+exports.Login = async() =>{
+
+    try{
+        const  {email, password} = req.body;
+        const user = await User.findOne({email});
+        if(!user){
+            //need to know the email whether is the correct
+            return res.status(403).json({message: "Invalid email"});
+        }
+        if (!await bcrypt.compare(password, user.password)){
+            return res.status(403).json({message: "invalid password"});
+        }
+        if (!user.isVerified){
+            return res.status(403).json({message: "please Verify your email"})
+        }
+        
+        const token = jwt.sign({id: user._id, role: user.role},process.env.JWT_SECRET);
+
+    }catch(err){
+
+        res.status(500).json({error: "Login failed"});
+
+    }
+
+};
 
