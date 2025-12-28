@@ -1,6 +1,7 @@
 import User from "../models/user.js";
 import otp from "../models/Otp.js";
 import bcrypt from "bcryptjs";
+import Otp from "../models/Otp.js";
 const jwt = require("jsonwebtoken");
 
 const generateAndSendOtp = async (email, subject) => {
@@ -103,4 +104,71 @@ exports.Login = async() =>{
     }
 
 };
+
+exports.forgotPassword = async (req,res) => {
+
+    try{
+        const {email} = req.body;
+        const User = await User.findone({email});
+        if (!user) return res.status(404).json({message: "User not found"});
+
+        await generateAndSendOtp (email, "Password send OTP");
+
+        res.json({message: "OTP send to your Email"})
+    }catch(err){
+        res.status(500).json({error: "Password reset failed"});
+    }
+};
+
+exports.resetPassword = async(req,res)=>{
+    try{
+        const {email, code, password} = req.body;
+        const otp = await Otp.findOne({email, code});
+
+        if (!otp || otp.expiresAt < Date.now()) {
+      return res.status(400).json({ message: "Invalid or expired OTP" });
+     }
+
+     const hashedPassword = await bcrypt.hash(newPassword, 10);
+     await User.findOneAndUpdate({email}, {password: hashedPassword});
+     await Otp.deleteOne({_id: otp._id});
+
+     res.json({message: "password reset successful"});
+
+
+
+    }catch(err){
+        res.status(500).json({error: "Password reset failed"});
+    }
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
