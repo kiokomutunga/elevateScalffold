@@ -1,6 +1,6 @@
 # Invoice Backend Repository Scaffold
 
- ready-to-use scaffold for an **Invoice Backend** repository you can push to GitHub. It includes a recommended file structure, key files (full code snippets), CI workflow, API documentation, and instructions to initialize and publish the repo.
+ ready-to-use scaffold for an **Invoice Backend** repository you can push to GitHub. It includes a recommended file structure, key files, CI workflow, API documentation, and instructions to initialize and publish the repo.
 
 ---
 
